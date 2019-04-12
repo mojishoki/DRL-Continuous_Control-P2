@@ -1,2 +1,2 @@
 # DRL-Continuous_Control-P2
-Continuous Control Project of Udacity ND DRL
+Project 2 Udacity's Deep RL nanodegree
