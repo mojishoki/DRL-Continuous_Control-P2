@@ -42,7 +42,7 @@ Read the `Report.md` for full implementation details.
 # Instructions
 The implementation here is for Windows (64-bit version). For each agent (DDPG, D4PG, PPO), start from the `_Train.ipynb` file in their respective folder. To run the agent locally, you need to install unity ml-agents 0.4. You can find it [here](https://github.com/Unity-Technologies/ml-agents/tree/0.4.0b).
 
-The two folders `Reacher_Windows_x86_64_20` and `Reacher_Windows_x86_64` are for 20 and 1 agent. We only work with the 20 agents environment. The optional part of the project (not done yet) can be used by setting `env=../Crawler_Windows_x86_64/Crawler.exe` in the first block of each `_Train.ipynb` file.
+The two folders `Reacher_Windows_x86_64_20` and `Reacher_Windows_x86_64` are for 20 and 1 agent. We only work with the 20 agents environment. The optional part of the project (not done yet) can be used by setting `file_name=../Crawler_Windows_x86_64/Crawler.exe` in the first block of each `_Train.ipynb` file.
 
 ---
 
