@@ -69,7 +69,7 @@ Let us review the construction of the _surrogate_ function, which gradient is es
 
 By using the formula of `P()` for both old and new policies (given above), we can calculate the gradient, restricted to each trajectory `tau`:
 
-<img src="assets/surrogate gradient function ppo.PNG" width="50%" align="top-left" alt="" title="surrogate gradient function ppo" />
+<img src="assets/surrogate  gradient function ppo.PNG" width="40%" align="top-left" alt="" title="surrogate gradient function ppo" />
 
 But notice we have cheated above! We did not take the gradient of the ratio `P(new)/P(old)` which obviously depends on the new parameters. We did not do so because we are going to _assume_ that the ratio is always equal to one! This is a major simplification and it is motivated from the observation that during the course of training, we can expect the old and new policies to be close to each other. Still, this simplification does have its issues ("falling over a cliff", as will be mentioned later) and __Proximal__ Policy Optimization (PPO) will make sure that this assumption of _proximality_ of old and new policy is _true_, and thus, will avoid those issues.
 
