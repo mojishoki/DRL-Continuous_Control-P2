@@ -126,11 +126,15 @@ dx = self.theta * (self.mu - x) + self.sigma * np.array([random.gauss(0,1) for i
 ```
 It is important for the purpose of exploration that one has a significant noise, esp. at the beginning of training, but in order to let the agent also explore as it gets better, we need to reduce the noise. If noise is high even after many episodes, the agent will have to really struggle to converge and training could take longer. On the other hand, it may be more robust. For our purpose, we wanted to see how fast we can get to solve the environment. Therefore, we wanted to know how much noise is given to the action after about 100 episodes. We have to evaluate the mean of the absolute value of the noise as it gets close to the normal distribution with mean `mu` and variance `sigma**2/(2*theta)`. It is shown numerically in `DDPG_Train.ipynb` that for the hyperparameters given in DDPG paper, i.e. `sigma=0.2,theta=0.15` one gets a mean of about 0.3. Since actions are between -1 and 1 it means a 30% noise even after infinitely many steps! This is really high, and one may hope that lowering that noise could lead to faster training. We chose the values `sigma=0.02,theta=0.04` to get about 5% noise in the limit. The difference in faster convergence was obvious as shown below:
 
-<img src="assets/DDPG_OUNoiseNotChanged.PNG" width="50%" align="top-left" alt="" title="OU noise not tuned" />
+<img src="score_plots/DDPG_OUNoiseNotChanged.PNG" width="50%" align="top-left" alt="" title="OU noise not tuned" />
 
-<img src="assets/DDPG_BestRun_OUNoiseChanged.PNG" width="50%" align="top-left" alt="" title="OU noise tuned" />
+<img src="score_plots/DDPG_BestRun_OUNoiseChanged.PNG" width="50%" align="top-left" alt="" title="OU noise tuned" />
 
-In the first case, where we did not change OU parameters, we solved the environment in 119 episodes. In the second case, it was in fact solved in 89 episodes as the training history shown in `DDPG_Train.ipynb` and the moving average crossing 30 at 90 episodes above demonstrate that. See [here](https://youtu.be/W8q6MNDnl8U) for a demonstration achieving near maximum perfect score of 39.67; we have also shown in the video how the agent smoothly goes for the goal location at the beginning of each episode.
+In the first case, where we did not change OU parameters, we solved the environment in 119 episodes. In the second case, it was in fact solved in 89 episodes as the training history shown in `DDPG_Train.ipynb` and the moving average crossing 30 at 90 episodes above demonstrate that. 
+
+<img src="score_plots/score_list_forOUNoise.PNG" width="50%" align="top-left" alt="" title="score history" />
+
+See [here](https://youtu.be/W8q6MNDnl8U) for a demonstration achieving near maximum perfect score of 39.67; we have also shown in the video how the agent smoothly goes for the goal location at the beginning of each episode.
 
 
 ##### &nbsp;
@@ -253,13 +257,13 @@ clip=0.2          #gradient clipping
 
 The results are detailed in the score plots. By choosing `entropy_exact`, we achieved the best run in 144 episodes, done in 16 minutes (on a 980Ti; compare to DDPG which was about 7 hours!!). Of course, this was not always the case (instability of Policy-based method!) and another run led to over 400 episodes. Below are these two runs, plus one using the `KL_entropy_approximate`.
 
-<img src="assets/PPO_BestRun_entropy_exact.PNG" width="50%" align="top-left" alt="" title="PPO best run" />
+<img src="score_plots/PPO_BestRun_entropy_exact.PNG" width="50%" align="top-left" alt="" title="PPO best run" />
 
-<img src="assets/ppo_entropy_exact_BestRun.PNG" width="50%" align="top-left" alt="" title="PPO best run time" />
+<img src="score_plots/ppo_entropy_exact_BestRun.PNG" width="50%" align="top-left" alt="" title="PPO best run time" />
 
-<img src="assets/PPO_WorstRun_entropy_exact.PNG" width="50%" align="top-left" alt="" title="PPO worst run" />
+<img src="score_plots/PPO_WorstRun_entropy_exact.PNG" width="50%" align="top-left" alt="" title="PPO worst run" />
 
-<img src="assets/PPO_KL_entropy_approximate.PNG" width="50%" align="top-left" alt="" title="PPO KL_entropy_approximate run" />
+<img src="score_plots/PPO_KL_entropy_approximate.PNG" width="50%" align="top-left" alt="" title="PPO KL_entropy_approximate run" />
 
 
 Most of our experiments were done without batch normalization, and with fully connected hidden layers of size 512, _not_ uniformly initialized like in DDPG. Some runs were made using smaller like 400,300 hidden layer sizes. Still, almost all of the runs solved the environment in around 200 episodes and less than 30 minutes real time. Between PPO and DDPG, the obvious choice is therefore PPO as it solves the environment much faster and also, like DDPG, is stable and achieves near maximum perfect score when evaluated (see [here](https://youtu.be/kvc0Z39l9ck)). 

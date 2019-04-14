@@ -11,7 +11,7 @@ Most of the times, a reward of +0.04 is provided for each timestep that the agen
 
 ![Trained Agent][image1]
 
-### Summary of Environment (by Unity's [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher)
+### Summary of Environment (by Unity's [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher))
 - Set-up: Double-jointed arm which can move to target locations.
 - Goal: Each agent must move its hand to the goal location, and keep it there.
 - Agents: The environment contains 20 agents linked to a single Brain.
@@ -36,6 +36,13 @@ Read the `Report.md` for full implementation details.
 4. Actor-Critic PPO
 5. D4PG
 6. Possible Future Improvements and Directions
+
+---
+
+# Instructions
+The implementation here is for Windows (64-bit version). For each agent (DDPG, D4PG, PPO), start from the `_Train.ipynb` file in their respective folder. To run the agent locally, you need to install unity ml-agents 0.4. You can find it [here](https://github.com/Unity-Technologies/ml-agents/tree/0.4.0b).
+
+The two folders `Reacher_Windows_x86_64_20` and `Reacher_Windows_x86_64` are for 20 and 1 agent. We only work with the 20 agents environment. The optional part of the project (not done yet) can be used by setting `env=../Crawler_Windows_x86_64/Crawler.exe` in the first block of each `_Train.ipynb` file.
 
 ---
 
@@ -96,7 +103,7 @@ The environment is considered solved, when the average (over 100 episodes) of th
     (_For AWS_) If you'd like to train the agent on AWS (and have not [enabled a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md)), then please use [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/one_agent/Reacher_Linux_NoVis.zip) (version 1) or [this link](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P2/Reacher/Reacher_Linux_NoVis.zip) (version 2) to obtain the "headless" version of the environment.  You will **not** be able to watch the agent without enabling a virtual screen, but you will be able to train the agent.  (_To watch the agent, you should follow the instructions to [enable a virtual screen](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Training-on-Amazon-Web-Service.md), and then download the environment for the **Linux** operating system above._)
 
 2. Place the file in the DRLND GitHub repository, in the `p2_continuous-control/` folder, and unzip (or decompress) the file.
-
+    
 ### Instructions
 
 Follow the instructions in `Continuous_Control.ipynb` to get started with training your own agent!  
