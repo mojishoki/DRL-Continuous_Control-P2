@@ -13,15 +13,13 @@ Project 2 Udacity's Deep RL nanodegree Report
 6. Possible Future Improvements and Directions
 
 ##### &nbsp;
-
 ## 1. Goal, State & Action Space
-
 In this project, the goal is to get 20 different robotic arms within Unity's [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher) environment to maintain contact with the green spheres for as long as possible.
 
 _Most_ of the times, a reward of +0.04 is provided for each timestep that the agent's hand is in the goal location. In order to solve the environment, the agent must achieve a score of +30 averaged across all 20 agents for 100 consecutive episodes. __Each episode is 1001 time steps, making a perfect run score being around 39.6.__
 
 
-#### Summary of Environment (by Unity's [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher)
+#### Summary of Environment (by Unity's [Reacher](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#reacher))
 - Set-up: Double-jointed arm which can move to target locations.
 - Goal: Each agent must move its hand to the goal location, and keep it there.
 - Agents: The environment contains 20 agents linked to a single Brain.
@@ -38,24 +36,23 @@ _Most_ of the times, a reward of +0.04 is provided for each timestep that the ag
 ## 2. A Quick Review of Policy-based and Actor-Critic methods
 
 ### 2.1. Policy-based methods
-
 In the previous project, we learned how to use value-based methods to train an agent. This training was done offline or off-policy which means we gathered experiences in a Replay Buffer and sampled from them to do the learning. This is usually not (esp. space) efficient as it requires a lot of data. Further, it is biased, which means it may not converge to the optimal value, though it has low variance. 
 
 The other choice of learning is an online policy-based learning method. This time, instead of trying to approximate the value function, we try to approximate the policy using the experiences it has _just_ gathered (online), without any replay buffer. Further, the learning is done by maximizing _the expected return_. Therefore, instead of gradient descent, we have to do gradient ascent on the _objective_ function `J_theta`:
 
-<img src="assets/objective function.PNG" width="50%" align="top-left" alt="" title="objective function" />
+<img src="assets/objective function.PNG" width="30%" align="top-left" alt="" title="objective function" />
 
 where `theta` are the parameters of the policy `pi`, `R_tau` is the (discounted) return of the trajectory `tau`, and `P()` is the probability of that trajectory using the policy `pi_theta`, i.e.
 
-<img src="assets/probability of trajectory.PNG" width="50%" align="top-left" alt="" title="probability of trajectory" />
+<img src="assets/probability of trajectory.PNG" width="30%" align="top-left" alt="" title="probability of trajectory" />
 
 The gradient of this can be calculated using the likelihood ratio trick:
 
-<img src="assets/likelihood ratio trick.PNG" width="50%" align="top-left" alt="" title="likelihood ratio trick" />
+<img src="assets/likelihood ratio trick.PNG" width="30%" align="top-left" alt="" title="likelihood ratio trick" />
 
 Applying this on `M` trajectories `tau_i` for `1<= i <= M` with length `T`, we obtain the gradient of the loss in the so-called REINFORCE (or Monte-Carlo Policy Gradient) algorithm:
 
-<img src="assets/REINFORCE.PNG" width="50%" align="top-left" alt="" title="REINFORCE" />
+<img src="assets/REINFORCE.PNG" width="30%" align="top-left" alt="" title="REINFORCE" />
 
 The above gradient is used to optimize the value of `theta <- theta + alpha*reinforce` in a gradient ascent fashion. Implementing any gradient ascent in PyTorch is done simply by taking the negative of the loss and using the desired loss function (Huber, MSE, etc). 
 
@@ -66,8 +63,7 @@ Policy-based methods are fast, but REINFORCE has its issues:
     
 (Actor-Critic) PPO will be an algorithm which will resolve all the above. But first, we need to mention some small things we can do to make the situation a lot better. First, is to consider _future returns_ `R_t=r_t+gamma*r_{t+1}+ ...` instead of the whole episode return (3). We can also normalize these returns to have a noise reduction (2). In PPO, we will explain how to also deal with the first issue.
 
-### 2.1. Actor-Critic methods
-
+### 2.2. Actor-Critic methods
 What if we could have the advantages of both policy-based and value-based methods in our algorithm? This is the purpose of Actor-Critic methods where an actor is the policy-based part, and the critic is the value-based part. The actor `pi_theta` chooses an action `a` given a state `s` with some probability (so it may be stochastic) `pi(a|s)`, while the critic estimates the action-value or the value of the state `Q(s,a)` or `V(s)`. This is supposed to bring down the variance of policy based methods as value based methods have low variance. But we will also get some bias which can be in fact controlled depending on how long we want our collected trajectories to be.  
 
 In fact, in the __online__ version of Actor-Critic methods (like PPO), we can do even better by including the advantage function `A(s,a)=Q(s,a)-V(s)` using Generalized Advantage Estimation (GAE) instead of future returns in the loss of the actor. We first collect trajectories using an _old_ policy (which is our current policy which will be improved). Then we calculate:
@@ -76,7 +72,7 @@ In fact, in the __online__ version of Actor-Critic methods (like PPO), we can do
 
 where the critic provides the  _value_ function of the old policy `V(s)` and `lambda` is the GAE hyperparameter which determines how much bias we want to introduce. If `lambda=1`, then it is just the Monte-Carlo full trajectory (least bias). If `lambda=0`, we get the TD-error (least variance). Hence, the actor loss would be :
 
-<img src="assets/GAE loss.PNG" width="50%" align="top-left" alt="" title="GAE loss" />
+<img src="assets/GAE loss.PNG" width="40%" align="top-left" alt="" title="GAE loss" />
 
 where `pi_theta` is the _new_ policy. The critic loss is simply `(V_new(s)-future_returns)**2`. For more details, see the PPO section.
 
@@ -115,9 +111,9 @@ SEED=1                  # random seed
 
 The network for both actor and critic is fully-connected with two hidden layers of size 400 and 300, initialized using  [_Xavier_ uniform ](http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf)`(-1/sqrt(fan_in),1/sqrt(fan_in))` initilization. Again, following the paper, we do batch normalization by using a batchnorm layer. The batch size is 128, different from 64 chosen in DDPG paper. Another change, which is usually not encouraged, has been to take the same learning rate for actor and critic, which gave us faster learning. Also, we did not try to tune the weight decay for the adam optimizer, so there could be better choices. But perhaps, the most important change which led to dramatically faster convergence was to tweak the [Ornstein-Uhlenbeck (OU)](https://en.wikipedia.org/wiki/Ornstein–Uhlenbeck_process) noise parameters. 
 
-OU noise is implemented in `OUNoise.py` following the formula given in
+OU noise is implemented in `OUNoise.py` following the formula [given in](https://en.wikipedia.org/wiki/Ornstein–Uhlenbeck_process)
 
-<img src="assets/OUNoise Formula.PNG" width="50%" align="top-left" alt="" title="OU Formula" />
+<img src="assets/OUNoise Formula.PNG" width="40%" align="top-left" alt="" title="OU Formula" />
 
 
 The noise, which is induced in the taken action, is supposed to be a better choice than the random epsilon decaying noise. This noise was introduced as a way to "generate temporally correlated exploration for exploration efficiency in physical control problems with inertia". In more precise terms, the noise is given by the velocity of a massive Brownian particle under the influence of friction. Hence, although the movement of the particle is random and its velocity is overall random, but it is temporally correlated. Further, the noise ultimately converges to a normal distribution with mean `mu` and variance `sigma**2/(2*theta)`. The implementation we provide below is precisely the formula above for `dt=1` as we are taking integer timesteps.
@@ -136,12 +132,10 @@ In the first case, where we did not change OU parameters, we solved the environm
 
 See [here](https://youtu.be/W8q6MNDnl8U) for a demonstration achieving near maximum perfect score of 39.67; we have also shown in the video how the agent smoothly goes for the goal location at the beginning of each episode.
 
-
 ##### &nbsp;
 ## 4. Actor-Critic PPO
 
 ### 4.1. PPO Review
-
 Policy based methods are un-biased but suffer from high variance. One solution to this high variance was to introduce AC methods, and DDPG goes even further by making the training offline. But to maintain an online learning of the agent and enjoy its advantages of faster and a more (space) efficient training in general, we need more stabilization techniques. 
 
 For that purpose, Trust Region Policy Optimization (TRPO) was introduced by [J. Schulman et. al., 2015](https://arxiv.org/pdf/1502.05477.pdf), where it was proposed that the surrogate function given by `(ratio_new_old*advantages).sum()` be optimized assuming a constraint on the KL distance of the old and new policy. What this constraint essentially does is to make sure that the new policy is not _that_ different from the old policy at each step. But this algorithm is not as easy as it may sound to implement as it is a second order algorithm; while there is linear approximation to the objective function (surrogate), there is a need to _quadratically_ approximate the constraint, hence using _second order_ derivatives in the optimization. Therefore the algorithm is rather complicated, but it is also not compatible with architectures that include noise (such as dropout) or parameter sharing (between the policy and value function, or with auxiliary tasks).
@@ -154,18 +148,15 @@ This clipping of the ratio is basically doing a similar job to KL distance const
 
 Another justification for this clipping is what it does to avoid "falling over a cliff", i.e. avoid a crash during training. The surrogate function is supposed to estimate the expected returns as we move to the next policy. Recall in the formulation of the surrogate function, we make a significant simplification where we __assume__ that the ratio of terms in "..." of the product below is very close to one:
 
-<img src="assets/PPO_probs_ratio3.PNG" width="50%" align="top-left" alt="" title="Probs ratio approximation" />
+<img src="assets/PPO_probs_ratio3.PNG" width="30%" align="top-left" alt="" title="Probs ratio approximation" />
 
 What this approximation implies is that if at some point the actual reward function declines rapidly like falling over a cliff, the surrogate function will _still_ predict higher and higher returns as it is assumed, through that approximation, that expected returns cannot be that different for the old and new policy. Hence it will make higher and higher changes in the policy by its gradient, and as the left picture shows, we might fall into a place where we it is too late and we can never recover.
 
 <img src="assets/PPO_clipping_cliff.PNG" width="50%" align="top-left" alt="" title="PPO Cliff" />
 
-The clipping PPO introduces makes sure that in the case where we are approaching a cliff, as the change in policy becomes more significant, i.e. the ratio <img src="assets/PPO_ratio.PNG" width="50%" align="top-left" alt="" title="PPO ratio" /> is big or small, beyond a very small _neighborhood_ of the old policy, the value of the ratio is clipped _constantly_ at `1+eps`, thereby making sure a gradient zero is obtained (so the optimizer will not change much the old policy). 
-
-
+The clipping PPO introduces makes sure that in the case where we are approaching a cliff, as the change in policy becomes more significant, i.e. the ratio <img src="assets/PPO_ratio.PNG" width="10%" align="top-left" alt="" title="PPO ratio" /> is big or small, beyond a very small _neighborhood_ of the old policy, the value of the ratio is clipped _constantly_ at `1+eps`, thereby making sure a gradient zero is obtained (so the optimizer will not change much the old policy). 
 
 ### 4.2. Implementation details
-
 PPO can be implemented in an actor only setting but to make it more powerful, one can implement it in an actor-critic fashion. This presents some challenges in the continuous action context, as the actor has to be stochastic in that it should output the probability of an action taken based on its value.
 
 The actor is going to first compute the _mean of the normal distribution_ from which the model chooses to sample the action from. While the `std` is not computed, it will still be an `nn.Parameter` initialized at 1 in all four dimensions of the action, which will be optimized by being introduced in the loss function by taking the log probs of the chosen actions or the entropy of the distribution, as we will see later on. The agent then samples from the distribution and compute the log probabilities of the samples. The critic part will of course compute the value of the state.
@@ -230,8 +221,7 @@ new_old_policy_KL = (new_log_probs.exp()*(new_log_probs-old_log_probs))
 Finally, there is also a term which comes from TRPO which we decided to experiment with:
     -The cross entropy term of the KL distance between the new and old policy called `new_old_policy_KL`. This can be seen as a sample estimate of the KL distance of the old and new distribution of the actor (hence also referred to as the _approximate_ KL). It has a _constant_ coefficient of `delta=0.1`. By introducing it in our loss function, its effect is the same as the clipping; it ensures that the new and old policies are close to each other (i.e. encouraging smaller KL distances between their respective distribution). We note that as explained in [PPO paper, p.2](https://arxiv.org/pdf/1707.06347.pdf), KL-distance used as a constraint by TRPO in its second-order algorithm is usually not encouraged to be used as a penalty:
     "TRPO uses a hard constraint rather than a penalty because it is hard to choose a single value of `delta` that performs well across different problems—or even within a single problem, where the the characteristics change over the course of learning."
-    Still we decided to experiment with this.
-
+Still we decided to experiment with this.
 
 Finally, before running the optimizer, we implement a gradient clipping of `0.2`. We experiment with different loss functions as described below, which come from different choices of including the entropies and approximate KL distance.
     -`simplest`: No consideration of entropies or KL
@@ -259,18 +249,16 @@ The results are detailed in the score plots. By choosing `entropy_exact`, we ach
 
 <img src="score_plots/PPO_BestRun_entropy_exact.PNG" width="50%" align="top-left" alt="" title="PPO best run" />
 
-<img src="score_plots/ppo_entropy_exact_BestRun.PNG" width="50%" align="top-left" alt="" title="PPO best run time" />
+<img src="score_plots/ppo_entropy_exact_BestRun.PNG" width="100%" align="top-left" alt="" title="PPO best run time" />
 
 <img src="score_plots/PPO_WorstRun_entropy_exact.PNG" width="50%" align="top-left" alt="" title="PPO worst run" />
 
 <img src="score_plots/PPO_KL_entropy_approximate.PNG" width="50%" align="top-left" alt="" title="PPO KL_entropy_approximate run" />
 
-
 Most of our experiments were done without batch normalization, and with fully connected hidden layers of size 512, _not_ uniformly initialized like in DDPG. Some runs were made using smaller like 400,300 hidden layer sizes. Still, almost all of the runs solved the environment in around 200 episodes and less than 30 minutes real time. Between PPO and DDPG, the obvious choice is therefore PPO as it solves the environment much faster and also, like DDPG, is stable and achieves near maximum perfect score when evaluated (see [here](https://youtu.be/kvc0Z39l9ck)). 
 
 ##### &nbsp;
 ## 5. D4PG
-
 So far, we have tried to implement the most famous actor-critic method with online and offline learning. Next is D4PG which should be an improvement on DDPG in terms of how many episodes it takes to solve the environment. But in terms of real time, each episode takes a lot more time (almost four times as much as DDPG). Therefore, although we have prepared the code and the agent can be trained, since we did not have enough computational bandwidth, we will postpone tuning the hyperparameters and solving the environment using D4PG to future works. Below, we will explain some of motivations/intuitions behind D4PG and discuss the code just like in previous cases.
 
 ### 5.1. D4PG Review
@@ -279,23 +267,23 @@ One of the major improvements on DQN, was the Distributional DQN introduced by [
 
 But to really be sure that what is being done makes sense, we need an analog of the Bellman's equations:
 
-<img src="assets/Bellman recursive equation.PNG" width="50%" align="top-left" alt="" title="Bellman recursive equation" />
+<img src="assets/Bellman recursive equation.PNG" width="40%" align="top-left" alt="" title="Bellman recursive equation" />
 
 To do so, instead of `Q(s,a)`, we assume a distribution `Z(x,a)`:
 
-<img src="assets/Bellman distributional recursive equation.PNG" width="50%" align="top-left" alt="" title="Bellman distributional recursive equation" />
+<img src="assets/Bellman distributional recursive equation.PNG" width="40%" align="top-left" alt="" title="Bellman distributional recursive equation" />
 
 We also need an analog of the contraction operator, which allows us to argue for the existence of the optimal policy:
 
-<img src="assets/Bellman optimality contraction.PNG" width="50%" align="top-left" alt="" title="Bellman optimality contraction" />
+<img src="assets/Bellman optimality contraction.PNG" width="40%" align="top-left" alt="" title="Bellman optimality contraction" />
 
 In the distributional settings, this becomes of the form:
 
-<img src="assets/Bellman distributional optimality contraction.PNG" width="50%" align="top-left" alt="" title="Bellman distributional optimality contraction" />
+<img src="assets/Bellman distributional optimality contraction.PNG" width="40%" align="top-left" alt="" title="Bellman distributional optimality contraction" />
 
 where `P^{\pi}` is the distributional transition operator
 
-<img src="assets/transition operator distributional.PNG" width="50%" align="top-left" alt="" title="transition operator distributional" />
+<img src="assets/transition operator distributional.PNG" width="40%" align="top-left" alt="" title="transition operator distributional" />
 
 But contraction is meaningless without a proper metric. The metric used here is the Wasserstein p-metric `d_p`, which we refer to the paper for its formula. The important part is that the contraction operator above is indeed a contraction with respect to that metric, hence we can see that the distributional approach has the theoretical motivation. What happens in the implementation though, is a bit more complicated, and to an extent different from what was shown so far. First, it is shown in the paper that, even in the case of continuous control, instead of choosing gaussian distribution (which are continuous), it is better to discretize and choose a categorical distribution. 
 
@@ -303,7 +291,7 @@ This means we have finitely many _atoms_ (with probabilities assigned to them) w
 
 Of course, implementing the categorical distribution has its own issues. It turns out that comparing the target and input using directly the equation 
 
-<img src="assets/Bellman distributional recursive equation.PNG" width="50%" align="top-left" alt="" title="Bellman distributional recursive equation" />
+<img src="assets/Bellman distributional recursive equation.PNG" width="40%" align="top-left" alt="" title="Bellman distributional recursive equation" />
 
 does not make sense, as one side is a distribution on different atoms (shifted and scaled)! Since we want our atoms to be fixed, we need some sort of projection operator, which will take the distribution on the target and find the _closest_ distribution to it using our fixed atoms. Pictorially, we would like to do something like:
 
@@ -314,7 +302,6 @@ This operator `\Phi` is described in [algorithm 1, p.6](https://arxiv.org/pdf/17
 <img src="assets/categorical projection description.PNG" width="50%" align="top-left" alt="" title="categorical projection description" />
 
 This finishes the discussion behind D4PG background. Finally, we get to what D4PG is. D4PG or _Distributed Distributional Deep Deterministic Policy Gradient_ algorithm was introduced by [G. Barth-Maron et. al., 2018](https://arxiv.org/pdf/1804.08617.pdf) by building on the previous approach and applying it on DDPG. Therefore, the essential change is that the critic of DDPG will output a (categorical) distribution `Z(x,a)` and follow the corresponding learning algorithm. There will be more changes and their details explained further below.
-
 
 ### 5.2. Implementation details
 As mentioned in the beginning, we have not trained/tuned the agent to solve the environment. Here, we explain more details of the changes going from DDPG to D4PG. The main difference was already discussed above. 
@@ -408,7 +395,6 @@ def project_dist(self,dist,returns_tmp,gamma):
         new_dist[u]+=dist[j]*(bj-l.float())
     return new_dist.permute([1,0])
 ```
-
 
 ##### &nbsp;
 ## 6. Possible Future Improvements and Directions
