@@ -137,11 +137,11 @@ class d4pg_agent():
             #size B 
             to_proj=returns_tmp.squeeze()+gamma**self.rollout_length * self.atoms[i]
             proj_atoms[i]=torch.clamp(torch.tensor(to_proj),self.V_min,self.V_max)
+            
 #         direct implementation of the eq (7) in Distributional paper:
 #         new_dist=torch.zeros_like(dist).to(device)
 #         for i in range(self.num_atoms):
 #             new_dist[i]=(torch.clamp(1-torch.abs(proj_atoms-self.atoms[i])/self.delta,0,1)*dist).sum(dim=0)
-#         print("previous new_dist:",new_dist)
 
 #         implementation of algorithm 1 
 #         size 1* num_atoms * num_atoms*B = 1*B
