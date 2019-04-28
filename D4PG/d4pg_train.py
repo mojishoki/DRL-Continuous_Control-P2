@@ -58,8 +58,8 @@ def d4pg_train(agent,env,brain_name,n_episodes=500, max_t=1000, target_score=30.
                                     i_episode, moving_avgs[-1], window_size))            
             if train_mode:
                 stats+=f'solved{i_episode}'
-                torch.save(agent.actor_local.state_dict(), f'actor_ckpt'+stats+f'.pth')
-                torch.save(agent.critic_local.state_dict(), f'critic_ckpt'+stats+f'.pth')
+                torch.save(agent.actor_local.state_dict(), stats+f'actor_ckpt'+f'.pth')
+                torch.save(agent.critic_local.state_dict(), stats+f'critic_ckpt'+f'.pth')
                 np.savetxt(stats+f'mean',mean_scores)
                 np.savetxt(stats+f'min',min_scores)
                 np.savetxt(stats+f'max',max_scores)
